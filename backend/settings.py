@@ -129,14 +129,14 @@ CSRF_USE_SESSIONS = False  # Use cookie-based CSRF, not session-based
 CSRF_COOKIE_NAME = 'csrftoken'  # Explicit cookie name
 CSRF_COOKIE_SECURE = USE_HTTPS  # Use secure flag in production
 CSRF_COOKIE_SAMESITE = 'None'  # Required for cross-origin requests
-CSRF_COOKIE_DOMAIN = '.genzzone.com'  # Share cookie across subdomains (note the leading dot)
+CSRF_COOKIE_DOMAIN = '.apbrandstorebd.com'  # Share cookie across subdomains (note the leading dot)
 CSRF_COOKIE_PATH = '/'  # Cookie available on all paths
 
 # Session Configuration
 SESSION_COOKIE_SECURE = USE_HTTPS
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'None'  # Required for cross-origin requests
-SESSION_COOKIE_DOMAIN = '.genzzone.com'  # Share session across subdomains
+SESSION_COOKIE_DOMAIN = '.apbrandstorebd.com'  # Share session across subdomains
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # Additional Security
@@ -173,8 +173,8 @@ AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
 
-AWS_S3_CUSTOM_DOMAIN = "media.genzzone.com"
-MEDIA_URL = "https://media.genzzone.com/"
+AWS_S3_CUSTOM_DOMAIN = "cdn.apbrandstorebd.com"
+MEDIA_URL = "https://cdn.apbrandstorebd.com/"
 
 # Django 4.2+ storage configuration (replaces DEFAULT_FILE_STORAGE)
 STORAGES = {
