@@ -37,7 +37,11 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        queryset = Product.objects.filter(is_active=True).select_related('category', 'category__parent')
+        queryset = (
+            Product.objects.filter(is_active=True)
+            .select_related('category', 'category__parent')
+            .prefetch_related('colors')
+        )
         # Optional: Add search/filter functionality
         search = self.request.query_params.get('search', None)
         if search:
@@ -73,7 +77,7 @@ class BestSellingViewSet(viewsets.ReadOnlyModelViewSet):
         return BestSelling.objects.filter(
             is_active=True,
             product__is_active=True
-        ).select_related('product')
+        ).select_related('product', 'product__category', 'product__category__parent').prefetch_related('product__colors')
 
 
 class NotificationViewSet(viewsets.ModelViewSet):
