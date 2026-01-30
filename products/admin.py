@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, BestSelling, Notification, Category, ProductColor, TrackingCode
+from .models import Product, BestSelling, Hot, Notification, Category, ProductColor, TrackingCode
 
 
 class ProductColorInline(admin.TabularInline):
@@ -72,6 +72,25 @@ class BestSellingAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Best Selling Configuration', {
             'fields': ('product', 'order', 'is_active')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(Hot)
+class HotAdmin(admin.ModelAdmin):
+    list_display = ['product', 'order', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['product__name', 'product__description']
+    list_editable = ['order', 'is_active']
+    fieldsets = (
+        ('Hot Section', {
+            'fields': ('product', 'order', 'is_active'),
+            'description': 'Choose which products appear in the Hot section under the hero. Add up to 4 (or more) and set order. Lower order = first.'
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),

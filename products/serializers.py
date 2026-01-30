@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, BestSelling, Notification, Category, ProductColor, TrackingCode
+from .models import Product, BestSelling, Hot, Notification, Category, ProductColor, TrackingCode
 
 
 class CategoryChildSerializer(serializers.ModelSerializer):
@@ -85,6 +85,16 @@ class BestSellingSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = BestSelling
+        fields = ['id', 'product', 'order', 'is_active', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+
+class HotSerializer(serializers.ModelSerializer):
+    """Serializer for Hot model"""
+    product = ProductSerializer(read_only=True)
+    
+    class Meta:
+        model = Hot
         fields = ['id', 'product', 'order', 'is_active', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
 

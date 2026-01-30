@@ -2,9 +2,9 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Product, BestSelling, Notification, Category, TrackingCode
+from .models import Product, BestSelling, Hot, Notification, Category, TrackingCode
 from .serializers import (
-    ProductSerializer, BestSellingSerializer, NotificationSerializer,
+    ProductSerializer, BestSellingSerializer, HotSerializer, NotificationSerializer,
     CategorySerializer, CategoryTreeSerializer, TrackingCodeSerializer
 )
 
@@ -75,6 +75,19 @@ class BestSellingViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return BestSelling.objects.filter(
+            is_active=True,
+            product__is_active=True
+        ).select_related('product', 'product__category', 'product__category__parent').prefetch_related('product__colors')
+
+
+class HotViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for viewing hot products (homepage Hot section)"""
+    queryset = Hot.objects.filter(is_active=True, product__is_active=True)
+    serializer_class = HotSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return Hot.objects.filter(
             is_active=True,
             product__is_active=True
         ).select_related('product', 'product__category', 'product__category__parent').prefetch_related('product__colors')

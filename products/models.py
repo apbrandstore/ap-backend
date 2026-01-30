@@ -165,6 +165,30 @@ class BestSelling(models.Model):
         return f"Best Selling: {self.product.name}"
 
 
+class Hot(models.Model):
+    """Model to mark which products appear in the Hot section on the homepage"""
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='hot_entries'
+    )
+    order = models.PositiveIntegerField(
+        default=0,
+        help_text='Display order (lower numbers appear first). Typically show 4 products.'
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'Hot Product'
+        verbose_name_plural = 'Hot Products'
+
+    def __str__(self):
+        return f"Hot: {self.product.name}"
+
+
 class Notification(models.Model):
     """Model for site-wide notification banner message"""
     message = models.CharField(
