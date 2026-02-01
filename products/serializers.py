@@ -65,8 +65,9 @@ class ProductSerializer(serializers.ModelSerializer):
     colors = serializers.SerializerMethodField()
     
     def get_colors(self, obj):
-        active_colors = obj.colors.filter(is_active=True)
-        return ProductColorSerializer(active_colors, many=True, context=self.context).data
+        # Use .all() so prefetched cache is used (views must use Prefetch with filter(is_active=True)).
+        # Calling .filter() here would bypass cache and cause N+1 queries.
+        return ProductColorSerializer(obj.colors.all(), many=True, context=self.context).data
     
     class Meta:
         model = Product

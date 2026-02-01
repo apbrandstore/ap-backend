@@ -1,9 +1,10 @@
+from django.db.models import Prefetch
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Product, BestSelling, Hot, Notification, Category, TrackingCode
+from .models import Product, BestSelling, Hot, Notification, Category, TrackingCode, ProductColor
 from .serializers import (
     ProductSerializer, BestSellingSerializer, HotSerializer, NotificationSerializer,
     CategorySerializer, CategoryTreeSerializer, TrackingCodeSerializer
@@ -11,6 +12,16 @@ from .serializers import (
 
 # Max products returned in one homepage payload (single request, no pagination)
 HOMEPAGE_PRODUCTS_LIMIT = 100
+
+# Prefetch active colors once so ProductSerializer.get_colors() uses cache (no N+1).
+_active_colors_prefetch = Prefetch(
+    'colors',
+    queryset=ProductColor.objects.filter(is_active=True).order_by('order', 'name'),
+)
+_product_colors_prefetch = Prefetch(
+    'product__colors',
+    queryset=ProductColor.objects.filter(is_active=True).order_by('order', 'name'),
+)
 
 
 class HomepageView(APIView):
@@ -22,19 +33,19 @@ class HomepageView(APIView):
         products_qs = (
             Product.objects.filter(is_active=True)
             .select_related('category', 'category__parent')
-            .prefetch_related('colors')
+            .prefetch_related(_active_colors_prefetch)
             .order_by('-created_at')[:HOMEPAGE_PRODUCTS_LIMIT]
         )
         best_selling_qs = (
             BestSelling.objects.filter(is_active=True, product__is_active=True)
             .select_related('product', 'product__category', 'product__category__parent')
-            .prefetch_related('product__colors')
+            .prefetch_related(_product_colors_prefetch)
             .order_by('order')
         )
         hot_qs = (
             Hot.objects.filter(is_active=True, product__is_active=True)
             .select_related('product', 'product__category', 'product__category__parent')
-            .prefetch_related('product__colors')
+            .prefetch_related(_product_colors_prefetch)
             .order_by('order')
         )
         return Response({
@@ -75,7 +86,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = (
             Product.objects.filter(is_active=True)
             .select_related('category', 'category__parent')
-            .prefetch_related('colors')
+            .prefetch_related(_active_colors_prefetch)
         )
         # Optional: Add search/filter functionality
         search = self.request.query_params.get('search', None)
@@ -112,7 +123,7 @@ class BestSellingViewSet(viewsets.ReadOnlyModelViewSet):
         return BestSelling.objects.filter(
             is_active=True,
             product__is_active=True
-        ).select_related('product', 'product__category', 'product__category__parent').prefetch_related('product__colors')
+        ).select_related('product', 'product__category', 'product__category__parent').prefetch_related(_product_colors_prefetch)
 
 
 class HotViewSet(viewsets.ReadOnlyModelViewSet):
@@ -125,7 +136,7 @@ class HotViewSet(viewsets.ReadOnlyModelViewSet):
         return Hot.objects.filter(
             is_active=True,
             product__is_active=True
-        ).select_related('product', 'product__category', 'product__category__parent').prefetch_related('product__colors')
+        ).select_related('product', 'product__category', 'product__category__parent').prefetch_related(_product_colors_prefetch)
 
 
 class NotificationViewSet(viewsets.ModelViewSet):
