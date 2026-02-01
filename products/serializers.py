@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, BestSelling, Hot, Notification, Category, ProductColor, TrackingCode
+from .models import Product, BestSelling, Hot, Notification, Category, ProductColor, TrackingCode, SiteSettings
 
 
 class CategoryChildSerializer(serializers.ModelSerializer):
@@ -116,4 +116,13 @@ class TrackingCodeSerializer(serializers.ModelSerializer):
         model = TrackingCode
         fields = ['id', 'name', 'code', 'is_active', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
+
+
+class SiteSettingsSerializer(serializers.ModelSerializer):
+    """Serializer for SiteSettings (hero image etc.). Read-only for public API."""
+    
+    class Meta:
+        model = SiteSettings
+        fields = ['hero_image', 'updated_at']
+        read_only_fields = ['hero_image', 'updated_at']
 

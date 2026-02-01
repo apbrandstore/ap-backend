@@ -4,10 +4,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Product, BestSelling, Hot, Notification, Category, TrackingCode, ProductColor
+from .models import Product, BestSelling, Hot, Notification, Category, TrackingCode, ProductColor, SiteSettings
 from .serializers import (
     ProductSerializer, BestSellingSerializer, HotSerializer, NotificationSerializer,
-    CategorySerializer, CategoryTreeSerializer, TrackingCodeSerializer
+    CategorySerializer, CategoryTreeSerializer, TrackingCodeSerializer, SiteSettingsSerializer
 )
 
 # Max products returned in one homepage payload (single request, no pagination)
@@ -166,4 +166,14 @@ class TrackingCodeViewSet(viewsets.ReadOnlyModelViewSet):
         """Get all active tracking codes"""
         tracking_codes = TrackingCode.objects.filter(is_active=True)
         serializer = self.get_serializer(tracking_codes, many=True)
+        return Response(serializer.data)
+
+
+class SiteSettingsView(APIView):
+    """Read-only endpoint for current site settings (e.g. hero image)."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        settings = SiteSettings.get_settings()
+        serializer = SiteSettingsSerializer(settings)
         return Response(serializer.data)

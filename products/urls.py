@@ -8,6 +8,7 @@ from .views import (
     NotificationViewSet,
     CategoryViewSet,
     TrackingCodeViewSet,
+    SiteSettingsView,
 )
 
 router = DefaultRouter()
@@ -20,6 +21,7 @@ router.register(r'tracking-codes', TrackingCodeViewSet, basename='tracking-code'
 
 urlpatterns = [
     path('api/homepage/', HomepageView.as_view(), name='homepage'),
+    path('api/site-settings/', SiteSettingsView.as_view(), name='site-settings'),
     path('api/', include(router.urls)),
 ]
 

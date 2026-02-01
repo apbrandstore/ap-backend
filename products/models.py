@@ -240,3 +240,27 @@ class TrackingCode(models.Model):
 
     def __str__(self):
         return f"{self.name} ({'Active' if self.is_active else 'Inactive'})"
+
+
+class SiteSettings(models.Model):
+    """Singleton-style model for site-wide settings (e.g. hero image). Only one row is used."""
+    hero_image = models.ImageField(
+        upload_to='hero/',
+        blank=True,
+        null=True,
+        help_text='Hero banner image shown on the homepage. Leave blank to use the default.'
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Site Settings'
+        verbose_name_plural = 'Site Settings'
+
+    def __str__(self):
+        return 'Site Settings'
+
+    @classmethod
+    def get_settings(cls):
+        """Return the single site settings instance (creates one if none exists)."""
+        settings, _ = cls.objects.get_or_create(pk=1, defaults={})
+        return settings
