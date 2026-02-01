@@ -2,11 +2,46 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from .models import Product, BestSelling, Hot, Notification, Category, TrackingCode
 from .serializers import (
     ProductSerializer, BestSellingSerializer, HotSerializer, NotificationSerializer,
     CategorySerializer, CategoryTreeSerializer, TrackingCodeSerializer
 )
+
+# Max products returned in one homepage payload (single request, no pagination)
+HOMEPAGE_PRODUCTS_LIMIT = 100
+
+
+class HomepageView(APIView):
+    """Single endpoint returning products, best_selling, and hot for the homepage.
+    One request instead of three so the server handles one response and the page loads faster."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        products_qs = (
+            Product.objects.filter(is_active=True)
+            .select_related('category', 'category__parent')
+            .prefetch_related('colors')
+            .order_by('-created_at')[:HOMEPAGE_PRODUCTS_LIMIT]
+        )
+        best_selling_qs = (
+            BestSelling.objects.filter(is_active=True, product__is_active=True)
+            .select_related('product', 'product__category', 'product__category__parent')
+            .prefetch_related('product__colors')
+            .order_by('order')
+        )
+        hot_qs = (
+            Hot.objects.filter(is_active=True, product__is_active=True)
+            .select_related('product', 'product__category', 'product__category__parent')
+            .prefetch_related('product__colors')
+            .order_by('order')
+        )
+        return Response({
+            'products': ProductSerializer(products_qs, many=True).data,
+            'best_selling': BestSellingSerializer(best_selling_qs, many=True).data,
+            'hot': HotSerializer(hot_qs, many=True).data,
+        })
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
