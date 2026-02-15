@@ -9,7 +9,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from .models import Cart, CartItem, Order, OrderItem
 from .serializers import (
-    SimpleOrderSerializer, OrderSerializer, CartSerializer,
+    SimpleSingleProductOrderSerializer, OrderSerializer, CartSerializer,
     CartItemSerializer, AddToCartSerializer, UpdateCartItemSerializer
 )
 from .steadfast_service import SteadfastService
@@ -30,19 +30,19 @@ def get_csrf_token(request):
 
 
 class CreateOrderView(APIView):
-    """API view for creating a new order with multiple products"""
+    """API view for creating a new order with a single product"""
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = SimpleOrderSerializer(data=request.data)
+        serializer = SimpleSingleProductOrderSerializer(data=request.data)
         
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         data = serializer.validated_data
-        products_data = data['products']
+        products_data = [data['product']]
         
-        # Validate products array is not empty
+        # Validate product is present
         if not products_data:
             return Response(
                 {'error': 'At least one product is required'}, 

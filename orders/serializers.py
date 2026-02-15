@@ -113,3 +113,15 @@ class SimpleOrderSerializer(serializers.Serializer):
     delivery_charge = serializers.DecimalField(max_digits=10, decimal_places=2)
     total_price = serializers.DecimalField(max_digits=10, decimal_places=2)
 
+
+class SimpleSingleProductOrderSerializer(serializers.Serializer):
+    """Serializer for creating an order with a single product"""
+    customer_name = serializers.CharField(max_length=200)
+    district = serializers.CharField(max_length=100)
+    address = serializers.CharField()  # Full address as text
+    phone_number = serializers.CharField(max_length=20)
+    product = ProductOrderItemSerializer()
+    product_total = serializers.DecimalField(max_digits=10, decimal_places=2)
+    delivery_charge = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_price = serializers.DecimalField(max_digits=10, decimal_places=2)
+
